@@ -1,7 +1,7 @@
 // chatLMJ Popote — formulaires tactiles pour inventaire et épicerie
 const popoteCategories=['Fruits et légumes','Viandes et volailles','Poissons et fruits de mer','Produits laitiers et œufs','Boulangerie','Épicerie sèche','Surgelés','Boissons','Entretien et maison','Autres'];
 const popoteUnits=['unité','unités','g','kg','livre (lb)','ml','L','paquet','boîte','sac','portion'];
-const popotePlaces=['Réfrigérateur','Congélateur','Garde-manger','Autre'];
+const popotePlaces=['Réfrigérateur','Congélateur','Garde-manger','Comptoir','Autre'];
 function popoteQty(x){const u=x.unit==='lb'?'livre (lb)':x.unit;return esc(String(x.qty||'1'))+(u?' '+esc(u):'')}
 function popoteGrouped(items,row){
  if(!items.length)return '<p class="muted">Aucun article pour le moment.</p>';
