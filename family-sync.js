@@ -1,11 +1,11 @@
 // chatLMJ Popote - synchronisation familiale
 window.popoteSync = {
-  active: false, busy: false, familyId: null, snapshot: {}, channel: null, timer: null,
+  active: false, busy: false, familyId: null, snapshot: {}, channel: null, timer: null, pending: false, pulling: false, refreshNeeded: false,
   kinds: ['inventory','recipes','shopping','plan'],
   key() { return 'popote-sync-'+user.id+'-'+family.id; },
   async initialize() {
     if (!db || !user || !family) { this.stop(); return; }
-    if (this.familyId === family.id && this.active) return;
+    if (this.familyId === family.id && this.active) { if(!this.pending) await this.pull(); return; }
     this.stop();
     this.familyId = family.id;
     if (localStorage.getItem(this.key()) !== 'yes') return;
@@ -18,27 +18,36 @@ window.popoteSync = {
   stop() {
     if (this.timer) clearTimeout(this.timer);
     if (this.channel && db) db.removeChannel(this.channel);
-    this.channel=null; this.active=false; this.familyId=null;
+    this.channel=null; this.active=false; this.familyId=null; this.pending=false; this.pulling=false; this.refreshNeeded=false;
   },
   async pull() {
-    if (!this.active || this.busy || !family || family.id !== this.familyId) return;
+    if (!this.active || !family || family.id !== this.familyId) return;
+    if(this.busy || this.pulling || this.pending){this.refreshNeeded=true;return;}
+    this.pulling=true;
+    const targetFamily=this.familyId;
+    try {
     const result=await db.from('popote_family_items').select('kind,item_id,payload').eq('family_id',family.id).limit(10000);
     if (result.error) { console.error(result.error); return; }
+    if(!this.active || this.familyId!==targetFamily || this.pending)return;
     for(const kind of this.kinds) {
       state[kind]=result.data.filter(r=>r.kind===kind).map(r=>({...r.payload,id:r.item_id}));
     }
     localStorage.setItem(KEY,JSON.stringify(state));
     this.snapshot=Object.fromEntries(this.kinds.map(k=>[k,JSON.stringify(state[k])]));
     render();
+    } finally { this.pulling=false; if(this.pending) this.schedule(); }
   },
   schedule() {
-    if (!this.active || this.busy) return;
+    if (!this.active) return;
+    this.pending=true;
     clearTimeout(this.timer);
     this.timer=setTimeout(()=>this.push(),300);
   },
   async push() {
-    if (!this.active || this.busy || !family) return;
+    if (!this.active || !family || !this.pending || this.busy || this.pulling) return;
     this.busy=true;
+    const targetFamily=this.familyId;
+    let success=false;
     try {
       for(const kind of this.kinds) {
         const oldItems=JSON.parse(this.snapshot[kind]||'[]');
@@ -59,8 +68,9 @@ window.popoteSync = {
         }
       }
       this.snapshot=Object.fromEntries(this.kinds.map(k=>[k,JSON.stringify(state[k])]));
+      success=true;
     } catch(e) { console.error(e); alert('Synchronisation impossible : '+e.message); }
-    finally { this.busy=false; }
+    finally { this.busy=false; if(success&&this.familyId===targetFamily){this.pending=false;if(this.refreshNeeded){this.refreshNeeded=false;await this.pull();}} }
   },
   async activate() {
     if(!db||!user||!family||this.active) return;
