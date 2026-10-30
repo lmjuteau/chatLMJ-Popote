@@ -92,3 +92,7 @@ window.popoteSync = {
     alert('Synchronisation familiale activée. '+rows.length+' élément(s) importé(s).');
   }
 };
+
+// Reprise après une coupure et rafraîchissement au retour dans l'application.
+window.addEventListener('online',()=>{const x=window.popoteSync;if(!x.active)return;if(x.pending)x.push();else x.pull();});
+document.addEventListener('visibilitychange',()=>{const x=window.popoteSync;if(document.visibilityState!=='visible'||!x.active)return;if(x.pending)x.push();else x.pull();});
