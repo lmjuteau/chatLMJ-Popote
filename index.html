@@ -6,7 +6,8 @@
 .invite-panel{border-top:1px solid light-dark(#e0e9e1,#3c5644);margin-top:18px;padding-top:16px}.invite-panel input{max-width:100%}#invite-result{overflow-wrap:anywhere}#invite-result input{font-size:14px}
 .member-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid light-dark(#e4eae4,#3a5140);min-width:0}.member-row>div{min-width:0;overflow-wrap:anywhere}.member-row small{display:block;opacity:.75;margin-top:4px}.member-row button{flex-shrink:0}.member-row:last-of-type{border-bottom:0}
 .popote-group{font-size:15px;margin:18px 0 6px;color:light-dark(#23734d,#a9dcb8)}
-</style></head><body><header><strong>chatLMJ <em>Popote</em></strong><span class="pill">v0.9 • Inventaire et épicerie</span></header><main class="wrap" id="app"></main><nav class="nav" id="nav"></nav>
+.popote-overlay{position:fixed;inset:0;z-index:1000;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}.popote-dialog{background:light-dark(#fff,#20362a);color:inherit;border-radius:18px;padding:22px;width:min(100%,520px);max-height:90dvh;overflow-y:auto;box-shadow:0 15px 50px #0005}.popote-dialog h2{margin:0 0 18px}.popote-dialog label{display:block;font-weight:600;margin-top:10px}.popote-dialog input,.popote-dialog select{font-weight:400;font-size:17px;min-height:48px}.popote-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.popote-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.popote-form-actions button{min-width:110px}@media(max-width:360px){.popote-fields{grid-template-columns:1fr}}
+</style></head><body><header><strong>chatLMJ <em>Popote</em></strong><span class="pill">v0.9.1 • Menus déroulants</span></header><main class="wrap" id="app"></main><nav class="nav" id="nav"></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="family-sync.js?v=083"></script><script src="family-members.js"></script><script>
 const tabs=[['home','🏠','Accueil'],['inventory','🧊','Invent.'],['recipes','📖','Recettes'],['plan','🗓️','Planifier'],['shopping','🛒','Épicerie'],['specials','🏷️','Spéciaux'],['expiring','⏰','À cons.'],['feedback','💬','Suggestions'],['account','👤','Compte']];
 const KEY='chatlmj-popote-local-v01';let state;try{state=JSON.parse(localStorage.getItem(KEY))}catch(e){}state=Object.assign({inventory:[],recipes:[],shopping:[],plan:[]},state||{});let tab='home';
@@ -130,4 +131,4 @@ function addPlan(){if(!state.recipes.length){alert('Ajoute une recette avant de 
 function remove(kind,id){if(!confirm('Supprimer cet élément?'))return;state[kind]=state[kind].filter(x=>x.id!==id);save();render()}
 function backup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chatLMJ-Popote-sauvegarde.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 render();refreshAccount();
-</script><script src="pantry-ui.js?v=090"></script></body></html>
+</script><script src="pantry-ui.js?v=091"></script></body></html>
